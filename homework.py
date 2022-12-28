@@ -1,4 +1,7 @@
-...
+import logging
+import time
+
+from . import exception
 
 load_dotenv()
 
@@ -20,11 +23,25 @@ HOMEWORK_VERDICTS = {
 
 
 def check_tokens():
-    ...
+    if PRACTICUM_TOKEN is None:
+        logging.critical('PRACTICUM_TOKEN не найден')
+        raise exception.PrakticumTokenException('PRACTICUM_TOKEN не найден')
+    if TELEGRAM_TOKEN is None:
+        logging.critical('TELEGRAM_TOKEN не найден')
+        raise exception.TelegramBotTokenException('TELEGRAM_TOKEN не найден')
+    if TELEGRAM_CHAT_ID is None:
+        logging.critical('TELEGRAM_CHAT_ID не найден')
+        raise exception.TelegramChatException('TELEGRAM_CHAT_ID не найден') 
+    return True           
+
 
 
 def send_message(bot, message):
-    ...
+    try:
+        bot.send_message(TELEGRAM_CHAT_ID, message)
+    except Exception as error:
+        logging.error(f'Бот не смог отправить сообщение:{error}') 
+        bot.send_message(TELEGRAM_CHAT_ID, error)
 
 
 def get_api_answer(timestamp):
@@ -53,12 +70,12 @@ def main():
 
     while True:
         try:
-
-            ...
+            send_message(bot,message)
+            time.sleep(RETRY_PERIOD)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            ...
+            logging.debug(message)
         ...
 
 
