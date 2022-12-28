@@ -1,5 +1,6 @@
 import logging
 import time
+import requests
 
 from . import exception
 
@@ -23,6 +24,7 @@ HOMEWORK_VERDICTS = {
 
 
 def check_tokens():
+    """Проверяет доступность переменных окружения"""
     if PRACTICUM_TOKEN is None:
         logging.critical('PRACTICUM_TOKEN не найден')
         raise exception.PrakticumTokenException('PRACTICUM_TOKEN не найден')
@@ -37,6 +39,7 @@ def check_tokens():
 
 
 def send_message(bot, message):
+    """Отправляет сообщение в Telegram чат"""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
     except Exception as error:
@@ -45,11 +48,28 @@ def send_message(bot, message):
 
 
 def get_api_answer(timestamp):
-    ...
-
+    """Делает запрос к единственному эндпоинту"""
+    homework_statuses = requests.get(ENDPOINT, headers=HEADERS, params={'from_date': timestamp})
+    return homework_statuses.json()
 
 def check_response(response):
-    ...
+    if not isinstance(response, dict):
+        raise TypeError('')
+    if response.get('homeworks') is None:
+        $$$logger.error('$$$$') 
+        raise $$$$   
+    if not isinstance(response['homework'], list):
+        raise TypeError('') 
+    if response['homework']==[]:
+        return {}
+    status=response['homework'][0].get('status')
+    if status not in HOMEWORK_VERDICTS:
+        $$$logger.error(f'Ошибка статуса {status}')
+        raise ####@@@@
+    return response['homework'][0]
+
+
+
 
 
 def parse_status(homework):
@@ -75,8 +95,8 @@ def main():
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            logging.debug(message)
-        ...
+        else:
+            #soobshenie otpravleno
 
 
 if __name__ == '__main__':
