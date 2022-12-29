@@ -34,7 +34,7 @@ HOMEWORK_VERDICTS = {
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения"""
+    """Проверяет доступность переменных окружения."""
     if PRACTICUM_TOKEN is None:
         logging.critical('PRACTICUM_TOKEN не найден')
         raise PrakticumTokenException('PRACTICUM_TOKEN не найден')
@@ -48,7 +48,7 @@ def check_tokens():
 
 
 def send_message(bot, message):
-    """Отправляет сообщение в Telegram чат"""
+    """Отправляет сообщение в Telegram чат."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logging.debug("Сообщение отправлено")
@@ -57,7 +57,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(timestamp):
-    """Делает запрос к единственному эндпоинту"""
+    """Делает запрос к единственному эндпоинту."""
     try:
         response = requests.get(ENDPOINT,
                                 headers=HEADERS,
@@ -70,7 +70,7 @@ def get_api_answer(timestamp):
 
 
 def check_response(response):
-    """Проверка соответствия API"""
+    """Проверка соответствия API."""
     if not isinstance(response, dict):
         raise TypeError('')
     if response.get('homeworks') is None:
@@ -87,7 +87,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Изменение статуса работы"""
+    """Изменение статуса работы."""
     status = homework.get('status')
     homework_name = homework.get('homework_name')
     verdict = HOMEWORK_VERDICTS.get(status)
