@@ -21,7 +21,7 @@ logging.basicConfig(
     format='%(asctime)s, %(levelname)s, %(name)s, %(message)s'
 )
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 handler = RotatingFileHandler('my_logger.log',
                               maxBytes=50000000, backupCount=5)
 formatter = logging.Formatter(
@@ -65,7 +65,9 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.debug("Сообщение отправлено")
-        logging.debug("Сообщение отправлено")
+    except TelegramError as error:
+        logger.error(f'Бот не смог отправить сообщение:{error}')
+        raise TelegramError
     except Exception as error:
         logger.error(f'Бот не смог отправить сообщение:{error}')
         raise TelegramError
@@ -77,15 +79,16 @@ def get_api_answer(timestamp):
         response = requests.get(ENDPOINT,
                                 headers=HEADERS,
                                 params={'from_date': timestamp})
-        response.json()
     except requests.RequestException:
         logger.error('Бот не смог отправить сообщение')
+        raise ApiException
+    if response.status_code != HTTPStatus.OK:
+        raise ApiException("API недоступен")
+    try:
+        return response.json()
     except json.errors.JSONDecodeError:
         logger.error('Не удалось преобразовать в JSON')
         raise ValueError
-    if response.status_code != HTTPStatus.OK:
-        raise ApiException("API недоступен")
-    return response.json()
 
 
 def check_response(response):
@@ -107,6 +110,9 @@ def parse_status(homework):
     status = homework.get('status')
     homework_name = homework.get('homework_name')
     verdict = HOMEWORK_VERDICTS.get(status)
+    # Убедитесь, что функция `parse_status` выбрасывает исключение,
+    # когда API домашки возвращает недокументированный статус
+    # домашней работы либо домашку без статуса
     if status not in HOMEWORK_VERDICTS.keys():
         raise NameError("Неожиданный статус дз")
     if homework_name is None:
