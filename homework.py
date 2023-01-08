@@ -68,9 +68,6 @@ def send_message(bot, message):
     except TelegramError as error:
         logger.error(f'Бот не смог отправить сообщение:{error}')
         raise TelegramError
-    except Exception as error:
-        logger.error(f'Бот не смог отправить сообщение:{error}')
-        raise TelegramError
 
 
 def get_api_answer(timestamp):
@@ -81,14 +78,14 @@ def get_api_answer(timestamp):
                                 params={'from_date': timestamp})
     except requests.RequestException:
         logger.error('Бот не смог отправить сообщение')
-        raise ApiException
+        raise ApiException('Произошла ошибка API')
     if response.status_code != HTTPStatus.OK:
         raise ApiException("API недоступен")
     try:
         return response.json()
     except json.errors.JSONDecodeError:
         logger.error('Не удалось преобразовать в JSON')
-        raise ValueError
+        raise ValueError('Ошибка преобразования в JSON')
 
 
 def check_response(response):
@@ -109,14 +106,11 @@ def parse_status(homework):
     """Изменение статуса работы."""
     status = homework.get('status')
     homework_name = homework.get('homework_name')
-    verdict = HOMEWORK_VERDICTS.get(status)
-    # Убедитесь, что функция `parse_status` выбрасывает исключение,
-    # когда API домашки возвращает недокументированный статус
-    # домашней работы либо домашку без статуса
     if status not in HOMEWORK_VERDICTS.keys():
         raise NameError("Неожиданный статус дз")
     if homework_name is None:
         raise ValueError("Неожиданный статус дз")
+    verdict = HOMEWORK_VERDICTS.get(status)
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
